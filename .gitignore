@@ -1,0 +1,16 @@
+# colcon
+build/
+install/
+log/
+
+# Benchmark outputs (curated results live in docs/results/)
+/results/
+
+# Editors / tools
+.vscode/
+.idea/
+*.swp
+.cache/
+compile_commands.json
+__pycache__/
+*.pyc

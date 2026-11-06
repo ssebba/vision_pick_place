@@ -1,0 +1,62 @@
+# One-command entry points (run from the repository root):
+#
+#   docker compose up demo        Gazebo + RViz + MoveIt pick and place (needs a display)
+#   docker compose run --rm test  build + unit and integration tests, headless
+#   docker compose run --rm benchmark   pick-and-place trials (JTC vs CTC), results in ./results
+#
+# GUI: works with X11 on Linux and with WSLg on Windows 11 (software rendering, no GPU needed).
+# On Linux run `xhost +local:docker` once.
+#
+# The containers keep their own network: every node runs inside, and DDS discovery does not
+# depend on the host's interfaces (host networking breaks it on WSL2 with mirrored networking).
+# For ROS tools on the host to see the simulation, add `network_mode: host` on Linux.
+
+x-ros-common: &ros-common
+  image: vision_pick_place:latest
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+    target: runtime
+  environment:
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
+    - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
+
+services:
+  demo:
+    <<: *ros-common
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
+      - DISPLAY=${DISPLAY:-:0}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-}
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/tmp}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # WSLg (Windows 11); harmless on Linux when the directory does not exist.
+      - /mnt/wslg:/mnt/wslg
+    command: ["ros2", "launch", "pp_bringup", "pick_place.launch.py"]
+
+  test:
+    <<: *ros-common
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    image: vision_pick_place:dev
+    working_dir: /ws
+    volumes:
+      - .:/ws/src/vision_pick_place:ro
+    command:
+      - bash
+      - -c
+      - >-
+        source /opt/ros/$${ROS_DISTRO}/setup.bash &&
+        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release -DPP_WARNINGS_AS_ERRORS=ON &&
+        colcon test --event-handlers console_direct- &&
+        colcon test-result --verbose
+
+  benchmark:
+    <<: *ros-common
+    volumes:
+      - ./results:/results
+    command: ["ros2", "run", "pp_bringup", "run_trials.sh", "/results"]

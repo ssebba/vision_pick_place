@@ -1,0 +1,56 @@
+cartesian_impedance_controller:
+  joints:
+    type: string_array
+    default_value: []
+    description: "Controlled joints, in kinematic order."
+    read_only: true
+    validation:
+      not_empty<>: []
+  end_effector_frame:
+    type: string
+    default_value: "tool0"
+    description: "Frame driven by the Cartesian spring (targets are expressed in the URDF root frame)."
+    read_only: true
+  stiffness:
+    type: double_array
+    default_value: [600.0, 600.0, 600.0, 40.0, 40.0, 40.0]
+    description: "Cartesian stiffness [N/m x3, Nm/rad x3]."
+    validation:
+      fixed_size<>: 6
+      lower_element_bounds<>: 0.0
+  damping_ratio:
+    type: double
+    default_value: 1.0
+    description: "Damping ratio of every Cartesian direction (damping from the task-space inertia)."
+    validation:
+      gt_eq<>: [0.0]
+  nullspace_stiffness:
+    type: double
+    default_value: 5.0
+    description: "Stiffness of the posture task in the null space [Nm/rad]."
+    validation:
+      gt_eq<>: [0.0]
+  nullspace_damping:
+    type: double
+    default_value: 0.5
+    description: "Damping of the posture task in the null space [Nms/rad]."
+    validation:
+      gt_eq<>: [0.0]
+  max_position_error:
+    type: double
+    default_value: 0.05
+    description: "The spring position error is saturated to this length [m] (bounded force)."
+    validation:
+      gt<>: [0.0]
+  max_orientation_error:
+    type: double
+    default_value: 0.3
+    description: "The spring orientation error is saturated to this angle [rad]."
+    validation:
+      gt<>: [0.0]
+  effort_limit_scale:
+    type: double
+    default_value: 1.0
+    description: "Fraction of the URDF effort limits used to saturate the torques."
+    validation:
+      bounds<>: [0.0, 1.0]

@@ -1,0 +1,64 @@
+object_detector_node:
+  input_topic:
+    type: string
+    default_value: "/camera/points"
+    description: "Point cloud to process."
+    read_only: true
+  target_frame:
+    type: string
+    default_value: "world"
+    description: "Frame of the detections; its z axis must be vertical (table normal)."
+  min_period:
+    type: double
+    default_value: 0.2
+    description: "Clouds arriving faster than this are skipped [s]."
+    validation:
+      gt_eq<>: [0.0]
+  crop_min:
+    type: double_array
+    default_value: [0.25, -0.35, -0.03]
+    description: "Workspace box, minimum corner in target_frame [m]."
+    validation:
+      fixed_size<>: 3
+  crop_max:
+    type: double_array
+    default_value: [0.85, 0.35, 0.25]
+    description: "Workspace box, maximum corner in target_frame [m]."
+    validation:
+      fixed_size<>: 3
+  voxel_size:
+    type: double
+    default_value: 0.004
+    description: "Voxel grid leaf size [m]."
+    validation:
+      gt<>: [0.0]
+  plane_distance:
+    type: double
+    default_value: 0.008
+    description: "RANSAC inlier distance of the table plane [m]."
+    validation:
+      gt<>: [0.0]
+  min_height:
+    type: double
+    default_value: 0.008
+    description: "Points closer than this to the table belong to it [m]."
+    validation:
+      gt_eq<>: [0.0]
+  cluster_tolerance:
+    type: double
+    default_value: 0.015
+    description: "Euclidean clustering distance [m]."
+    validation:
+      gt<>: [0.0]
+  min_cluster_size:
+    type: int
+    default_value: 40
+    description: "Smaller clusters are noise."
+    validation:
+      gt<>: [0]
+  max_cluster_size:
+    type: int
+    default_value: 50000
+    description: "Larger clusters are not objects."
+    validation:
+      gt<>: [0]

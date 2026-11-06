@@ -1,0 +1,44 @@
+computed_torque_controller:
+  joints:
+    type: string_array
+    default_value: []
+    description: "Controlled joints, in kinematic order."
+    read_only: true
+    validation:
+      not_empty<>: []
+  mode:
+    type: string
+    default_value: "computed_torque"
+    description: "computed_torque: inverse dynamics + PD; pd_gravity: PD + gravity compensation (baseline)."
+    validation:
+      one_of<>: [["computed_torque", "pd_gravity"]]
+  natural_frequency:
+    type: double
+    default_value: 25.0
+    description: "Closed-loop natural frequency of every joint [rad/s] (Kp = w^2, Kd = 2 zeta w)."
+    validation:
+      gt<>: [0.0]
+  damping_ratio:
+    type: double
+    default_value: 1.0
+    description: "Closed-loop damping ratio."
+    validation:
+      gt<>: [0.0]
+  goal_tolerance:
+    type: double
+    default_value: 0.01
+    description: "Max joint position error at the end of a trajectory to report success [rad]."
+    validation:
+      gt<>: [0.0]
+  goal_time:
+    type: double
+    default_value: 1.0
+    description: "Time allowed after the end of the trajectory to reach the goal tolerance [s]."
+    validation:
+      gt_eq<>: [0.0]
+  effort_limit_scale:
+    type: double
+    default_value: 1.0
+    description: "Fraction of the URDF effort limits used to saturate the torques."
+    validation:
+      bounds<>: [0.0, 1.0]

@@ -1,0 +1,25 @@
+planning_plugins:
+  - ompl_interface/OMPLPlanner
+# The order of the elements in the adapter corresponds to the order they are processed by the motion planning pipeline.
+request_adapters:
+  - default_planning_request_adapters/ResolveConstraintFrames
+  - default_planning_request_adapters/ValidateWorkspaceBounds
+  - default_planning_request_adapters/CheckStartStateBounds
+  - default_planning_request_adapters/CheckStartStateCollision
+response_adapters:
+  - default_planning_response_adapters/AddTimeOptimalParameterization
+  - default_planning_response_adapters/ValidateSolution
+  - default_planning_response_adapters/DisplayMotionPath
+
+planner_configs:
+  RRTConnectkConfigDefault:
+    type: geometric::RRTConnect
+    range: 0.0  # longest motion added to a tree in one step (0: automatic)
+arm:
+  planner_configs: [RRTConnectkConfigDefault]
+  # Collision checks along every motion at 0.2 % of the configuration space extent (about
+  # 1.6 deg with the work-cell joint limits): with the default 0.5 % the gripper could cross the
+  # forearm between two checks, and the final validation then rejected the plan.
+  longest_valid_segment_fraction: 0.002
+gripper:
+  planner_configs: [RRTConnectkConfigDefault]

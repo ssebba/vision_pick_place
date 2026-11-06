@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+  Pick and place every object on the table, one at a time.
+  The per-object sequence always succeeds: a failed pick is recovered (gripper opened,
+  object marked as not pickable) so that the loop moves on to the next object. The loop ends
+  when SelectTarget finds nothing left to pick.
+-->
+<root BTCPP_format="4" main_tree_to_execute="PickAndPlace">
+  <BehaviorTree ID="PickAndPlace">
+    <Sequence>
+      <SetGripper opening="0.085"/>
+      <ForceSuccess>
+        <KeepRunningUntilFailure>
+          <Sequence name="one_object">
+            <MoveToNamed target="observe"/>
+            <DetectObjects objects="{objects}" timeout="10.0"/>
+            <SelectTarget objects="{objects}" target="{target}"/>
+            <Fallback>
+              <Sequence name="pick_and_place">
+                <PlanGrasp target="{target}" grasp="{grasp}" pregrasp="{pregrasp}" width="{width}"/>
+                <MoveToPose pose="{pregrasp}"/>
+                <MoveLinear pose="{grasp}" velocity_scaling="0.1"/>
+                <SetGripper opening="{width}" squeeze="0.008"/>
+                <AttachObject/>
+                <MoveLinear pose="{pregrasp}" velocity_scaling="0.2"/>
+                <VerifyLift/>
+                <NextPlacePose grasp="{grasp}" place="{place}" preplace="{preplace}"/>
+                <MoveToPose pose="{preplace}"/>
+                <MoveLinear pose="{place}" velocity_scaling="0.1"/>
+                <SetGripper opening="0.085"/>
+                <DetachObject/>
+                <VerifyPlace place="{place}"/>
+                <MoveLinear pose="{preplace}" velocity_scaling="0.2"/>
+              </Sequence>
+              <Sequence name="recover">
+                <DetachObject/>
+                <SetGripper opening="0.085"/>
+                <MarkFailed target="{target}"/>
+              </Sequence>
+            </Fallback>
+          </Sequence>
+        </KeepRunningUntilFailure>
+      </ForceSuccess>
+      <MoveToNamed target="home"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

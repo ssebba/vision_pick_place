@@ -1,0 +1,79 @@
+# ros2_control configuration of the work cell (loaded by gz_ros2_control).
+# arm_controller (position, stock JTC) is the default; ctc_controller and
+# impedance_controller (effort, this repository) are loaded inactive and activated through
+# the controller manager when needed: only one arm controller can be active at a time.
+controller_manager:
+  ros__parameters:
+    update_rate: 500  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    ctc_controller:
+      type: arm_controllers/ComputedTorqueController
+    impedance_controller:
+      type: arm_controllers/CartesianImpedanceController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    state_publish_rate: 100.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 1.0
+
+gripper_controller:
+  ros__parameters:
+    joints: [left_finger_joint, right_finger_joint]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 1.0
+      # A closed gripper stops on the object: do not require the commanded opening.
+      left_finger_joint: {goal: 0.05}
+      right_finger_joint: {goal: 0.05}
+
+ctc_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    mode: computed_torque
+    natural_frequency: 25.0
+    damping_ratio: 1.0
+    goal_tolerance: 0.01
+    goal_time: 1.0
+
+impedance_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    end_effector_frame: gripper_tcp
+    stiffness: [600.0, 600.0, 600.0, 40.0, 40.0, 40.0]
+    damping_ratio: 1.0
+    nullspace_stiffness: 5.0
+    nullspace_damping: 0.5

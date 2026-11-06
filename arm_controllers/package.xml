@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>arm_controllers</name>
+  <version>0.1.0</version>
+  <description>ros2_control controllers: computed-torque joint trajectory tracking (FollowJointTrajectory) and Cartesian impedance, both model based (Pinocchio).</description>
+  <maintainer email="sebastiano.comai@outlook.it">Sebastiano Comai</maintainer>
+  <license>Apache-2.0</license>
+  <url type="repository">https://github.com/ssebba/vision_pick_place</url>
+  <author email="sebastiano.comai@outlook.it">Sebastiano Comai</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>arm_control_core</depend>
+  <depend>control_msgs</depend>
+  <depend>controller_interface</depend>
+  <depend>generate_parameter_library</depend>
+  <depend>geometry_msgs</depend>
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>realtime_tools</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ur_description</test_depend>
+  <test_depend>xacro</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

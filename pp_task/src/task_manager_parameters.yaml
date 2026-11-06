@@ -1,0 +1,82 @@
+task_manager:
+  tree_file:
+    type: string
+    default_value: ""
+    description: "Behavior tree XML (empty: pp_task/behavior_trees/pick_place.xml)."
+    read_only: true
+  plugin_libraries:
+    type: string_array
+    default_value: ["pp_bt_nodes"]
+    description: "BT.CPP plugin libraries (in the lib folder of pp_task) registering the nodes."
+    read_only: true
+  detections_topic:
+    type: string
+    default_value: "/object_detector/detections"
+    description: "vision_msgs/Detection3DArray of the objects on the table."
+    read_only: true
+  arm_group:
+    type: string
+    default_value: "arm"
+    description: "MoveIt planning group of the arm."
+    read_only: true
+  gripper_group:
+    type: string
+    default_value: "gripper"
+    description: "MoveIt planning group of the gripper."
+    read_only: true
+  motion_velocity_scaling:
+    type: double
+    default_value: 0.4
+    description: "Velocity and acceleration scaling of the free-space motions."
+    validation:
+      bounds<>: [0.01, 1.0]
+  preferred_grasp_yaw:
+    type: double
+    default_value: 3.1416
+    description: "Closing direction preferred among equivalent grasps [rad] (less wrist rotation)."
+  approach_distance:
+    type: double
+    default_value: 0.12
+    description: "Height of the pre-grasp / pre-place poses above the grasp [m]."
+    validation:
+      gt<>: [0.0]
+  place_origin:
+    type: double_array
+    default_value: [0.10, -0.40, 0.0]
+    description: "First place slot (TCP x, y) [m]."
+    validation:
+      fixed_size<>: 3
+  place_step:
+    type: double_array
+    default_value: [0.10, 0.0, 0.0]
+    description: "Offset between consecutive place slots [m]."
+    validation:
+      fixed_size<>: 3
+  start_delay:
+    type: double
+    default_value: 2.0
+    description: "Wait after activation before ticking the tree [s] (controllers settling)."
+    validation:
+      gt_eq<>: [0.0]
+  wait_for_actions:
+    type: string_array
+    default_value: []
+    description: "FollowJointTrajectory servers (the controllers MoveIt executes on) that must be available before the task starts."
+  wait_timeout:
+    type: double
+    default_value: 120.0
+    description: "Maximum wait for wait_for_actions [s]."
+    validation:
+      gt<>: [0.0]
+  results_file:
+    type: string
+    default_value: ""
+    description: "CSV file appended with one row per object (empty: no file)."
+  run_id:
+    type: string
+    default_value: "run"
+    description: "Identifier written in the results."
+  shutdown_when_done:
+    type: bool
+    default_value: false
+    description: "Shut down the process when the task is over (benchmark runs)."

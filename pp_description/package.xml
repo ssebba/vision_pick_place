@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>pp_description</name>
+  <version>0.1.0</version>
+  <description>Work cell description: UR5e on a table, parallel gripper, RGB-D camera, ros2_control and Gazebo plugins.</description>
+  <maintainer email="sebastiano.comai@outlook.it">Sebastiano Comai</maintainer>
+  <license>Apache-2.0</license>
+  <url type="repository">https://github.com/ssebba/vision_pick_place</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Controllers referenced by config/ros2_controllers.yaml. -->
+  <exec_depend>arm_controllers</exec_depend>
+  <exec_depend>gz_ros2_control</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>ur_description</exec_depend>
+  <exec_depend>ur_simulation_gz</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

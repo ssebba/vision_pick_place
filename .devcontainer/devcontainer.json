@@ -1,0 +1,33 @@
+{
+  "name": "vision_pick_place (ROS 2 Lyrical)",
+  "build": {
+    "dockerfile": "../docker/Dockerfile",
+    "context": "..",
+    "target": "dev"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/ws/src/vision_pick_place,type=bind",
+  "workspaceFolder": "/ws/src/vision_pick_place",
+  "runArgs": ["--network=host", "--ipc=host"],
+  "containerEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}",
+    "WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+    "ROS_DOMAIN_ID": "42"
+  },
+  "mounts": [
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
+  ],
+  "postCreateCommand": "bash -c 'source /opt/ros/lyrical/setup.bash && cd /ws && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "ms-python.python",
+        "ms-iot.vscode-ros"
+      ],
+      "settings": {
+        "clangd.arguments": ["--compile-commands-dir=/ws/build"]
+      }
+    }
+  }
+}

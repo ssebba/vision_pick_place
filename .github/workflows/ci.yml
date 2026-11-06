@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ROS_DISTRO: lyrical
+
+jobs:
+  format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    # Same clang-format version as the development image (Ubuntu 26.04).
+    container: ros:lyrical-ros-base
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang-format
+        run: apt-get update && apt-get install -y --no-install-recommends clang-format
+      - name: Check formatting
+        run: |
+          find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format --dry-run --Werror --style=file
+
+  build-test-lint:
+    name: build, test, clang-tidy
+    runs-on: ubuntu-latest
+    container: ros:lyrical-ros-base
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src/vision_pick_place
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          rosdep update --rosdistro "${ROS_DISTRO}"
+          rosdep install --from-paths src --ignore-src --rosdistro "${ROS_DISTRO}" -y
+          apt-get install -y --no-install-recommends \
+            python3-colcon-common-extensions ccache clang-tidy
+
+      - name: ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-${{ runner.os }}-${{ github.sha }}
+          restore-keys: ccache-${{ runner.os }}-
+
+      - name: Build (-Werror)
+        env:
+          CCACHE_DIR: ${{ github.workspace }}/.ccache
+        run: |
+          source "/opt/ros/${ROS_DISTRO}/setup.bash"
+          colcon build --event-handlers console_cohesion+ --cmake-args \
+            -DCMAKE_BUILD_TYPE=Release -DPP_WARNINGS_AS_ERRORS=ON \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Unit and integration tests
+        run: |
+          source install/setup.bash
+          colcon test --event-handlers console_cohesion+ --return-code-on-test-failure
+          colcon test-result --verbose
+
+      - name: clang-tidy
+        run: src/vision_pick_place/tools/run_clang_tidy.sh "${GITHUB_WORKSPACE}"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/*/test_results/
+          if-no-files-found: ignore
+
+  docker:
+    name: docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the runtime image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: runtime
+          push: false
+          tags: vision_pick_place:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

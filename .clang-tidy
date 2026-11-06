@@ -1,0 +1,61 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  clang-analyzer-*,
+  cppcoreguidelines-virtual-class-destructor,
+  cppcoreguidelines-slicing,
+  google-explicit-constructor,
+  misc-unused-using-decls,
+  misc-redundant-expression,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard,
+  -modernize-avoid-c-arrays,
+  -modernize-use-designated-initializers,
+  -modernize-use-ranges,
+  -modernize-use-integer-sign-comparison,
+  performance-*,
+  -performance-enum-size,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity,
+  -readability-uppercase-literal-suffix,
+  -readability-math-missing-parentheses,
+  -readability-convert-member-functions-to-static,
+  -readability-redundant-member-init,
+  -readability-avoid-nested-conditional-operator,
+  -readability-ambiguous-smartptr-reset-call,
+  -clang-analyzer-optin.cplusplus.VirtualCall,
+  -clang-analyzer-security.ArrayBound,
+  -clang-analyzer-optin.core.EnumCastOutOfRange
+# Disabled on purpose:
+#  - readability-ambiguous-smartptr-reset-call: `ptr.reset()` is idiomatic ROS/C++ code.
+#  - VirtualCall / ArrayBound: false positives inside pluginlib and Eigen (SparseMatrix) headers.
+#  - EnumCastOutOfRange: false positive on the flag enums of Pinocchio (OR of enumerators).
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*'
+ExcludeHeaderFilterRegex: '(.*/build/.*|.*/install/.*|/opt/ros/.*|/usr/.*)'
+FormatStyle: file
+CheckOptions:
+  # ROS 2 style include guards (PACKAGE__FILE_HPP_) contain a double underscore.
+  - { key: bugprone-reserved-identifier.AllowedIdentifiers,    value: '^[A-Z0-9_]+__[A-Z0-9_]+_HPP_$' }
+  - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
+  - { key: readability-identifier-naming.ClassCase,              value: CamelCase  }
+  - { key: readability-identifier-naming.StructCase,             value: CamelCase  }
+  - { key: readability-identifier-naming.EnumCase,               value: CamelCase  }
+  - { key: readability-identifier-naming.EnumConstantCase,       value: CamelCase  }
+  - { key: readability-identifier-naming.EnumConstantPrefix,     value: k          }
+  - { key: readability-identifier-naming.FunctionCase,           value: camelBack  }
+  - { key: readability-identifier-naming.VariableCase,           value: lower_case }
+  - { key: readability-identifier-naming.ParameterCase,          value: lower_case }
+  - { key: readability-identifier-naming.PrivateMemberSuffix,    value: _          }
+  - { key: readability-identifier-naming.ProtectedMemberSuffix,  value: _          }
+  - { key: readability-identifier-naming.ConstexprVariableCase,  value: CamelCase  }
+  - { key: readability-identifier-naming.ConstexprVariablePrefix, value: k         }
+  - { key: readability-implicit-bool-conversion.AllowPointerConditions, value: true }
+  - { key: readability-function-size.LineThreshold,              value: 120 }
+...
